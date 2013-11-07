@@ -1,0 +1,4 @@
+PyYAML==3.10
+appdirs==1.2.0
+distribute==0.6.31
+git+https://tiliv@github.com/tiliv/scxrapper#egg=scxrapper

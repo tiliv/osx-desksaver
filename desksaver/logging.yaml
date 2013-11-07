@@ -1,0 +1,27 @@
+version: 1
+
+formatters:
+  full:
+    format: "%(asctime)s %(name)-15s: [%(levelname)-8s] %(message)s"
+  colored:
+    "()": "scxrapper.logger.formatters.ColoredFormatter"
+    format: "[%(levelname)-9s] %(name)-15s: %(message)s"
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    formatter: colored
+    stream: ext://sys.stdout
+  file:
+    class: logging.handlers.RotatingFileHandler
+    formatter: full
+    filename: log/scxrapper.log
+    maxBytes: 5242880
+    backupCount: 10
+
+root:
+  level: INFO
+  handlers:
+    - console
+    - file
+  
