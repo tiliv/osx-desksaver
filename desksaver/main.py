@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 
-from base64 import b64decode
 from datetime import timedelta
 import os, os.path
+import re
 
 from scxrapper.instruments import Scraper, Pattern
 from scxrapper.instruments.pages.cached import FilesystemCachedPage, BinaryFile
@@ -55,12 +55,14 @@ class HomePage(FailFastMixin, FilesystemCachedPage):
     class WallpaperLink(AnchorTagPattern):
         variables = {
             'attributes': {
-                'href': r'http://wallbase\.cc/wallpaper/\d+',
+                'data-id': r'\d+',
+                'class': r'closeX.*',
             },
         }
         save_variables = {
-            'href': "WALLPAPER_PAGE_URL",
+            'data-id': "WALLPAPER_ID",
         }
+        regex_flags = re.MULTILINE
         sub_instruments = ['WallpaperDetailPage']
 
     sub_instruments = [WallpaperLink]
@@ -71,14 +73,12 @@ class HomePage(FailFastMixin, FilesystemCachedPage):
 
 
 class WallpaperDetailPage(FailFastMixin, FilesystemCachedPage):
-    uri = "{WALLPAPER_PAGE_URL}"
+    uri = "http://wallbase.cc/wallpaper/{WALLPAPER_ID}"
     shelf_life = timedelta(days=1)
 
     class WallpaperImageLink(Pattern):
-        pattern = r"'\+B\('(?P<data>[^)]+)'\)\+'"
-        save_variables = {
-            'data': lambda value: {'WALLPAPER_URL': b64decode(value).decode()}
-        }
+        pattern = r'<img src="(?P<WALLPAPER_URL>http://wallpapers\.wallbase\.cc/(rozne|high-resolution|manga-anime)/wallpaper-\d+\.(jpg|png))" class='
+        save_variables = True
 
         class WallpaperImageFile(BinaryFile):
             uri = '{WALLPAPER_URL}'
